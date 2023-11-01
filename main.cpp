@@ -1,26 +1,79 @@
 #include "mainwindow.h"
-#include <QApplication>
-#include <QMessageBox>
-#include "connection.h"
-int main(int argc, char *argv[])
+#include "ui_mainwindow.h"
+
+MainWindow::MainWindow(QWidget *parent) :
+    QMainWindow(parent),
+    ui(new Ui::MainWindow)
 {
-    QApplication a(argc, argv);
-    MainWindow w;
-    Connection c;
-    bool test=c.createconnect();
+    ui->setupUi(this);
+}
+
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
+
+
+void MainWindow::on_pushButtonAjoutMission_clicked()
+{
+    QString code_mission = ui->Line_code_mission->text();
+    QString date_mission = ui->linedateMission->text();
+    QString statut_mission = ui->lineStatutMission->text();
+
+    Mission a(code_mission,date_mission,statut_mission);
+    bool test = a.ajouterMission();
     if(test)
-    {w.show();
-        QMessageBox::critical(nullptr, QObject::tr("database is open"),
-                    QObject::tr("connection successful.\n"
-                                "Click Cancel to exit."), QMessageBox::Cancel);
+    {
 
-}
+        QMessageBox::information(nullptr, QObject::tr("Success"),
+                    QObject::tr("ajouté avec success.\n"
+                                "Click Cancel to exit."), QMessageBox::Cancel);
+    }
     else
-        QMessageBox::critical(nullptr, QObject::tr("database is not open"),
-                    QObject::tr("connection failed.\n"
+    {
+        QMessageBox::critical(nullptr, QObject::tr("Error"),
+                    QObject::tr("ajout echoué !.\n"
                                 "Click Cancel to exit."), QMessageBox::Cancel);
-
-
-
-    return a.exec();
+    }
 }
+
+void MainWindow::on_pushButtonSupprimerMission_clicked()
+{
+int id=ui->lineEditsupp->text().toInt();
+bool test=Atmp.supprimerMission(int code_mission);
+if(test)
+{
+    QMessageBox::information(nullptr, QObject::tr("Success"),
+                QObject::tr("supprimé avec success.\n"
+                            "Click Cancel to exit."), QMessageBox::Cancel);
+}
+else
+{
+    QMessageBox::critical(nullptr, QObject::tr("Error"),
+                QObject::tr("suppression echoué !.\n"
+                            "Click Cancel to exit."), QMessageBox::Cancel);
+}
+}
+
+
+void MainWindow::on_pushButtonModifierMission_clicked()
+{
+    QString code_mission = ui->Line_code_mission->text();
+    QString date_mission = ui->linedateMission->text();
+    QString statut_mission = ui->lineStatutMission->text();
+    Mission a(code_mission,date_mission,statut_mission);
+    bool test = a.modifierMission();
+    if(test)
+    {
+        QMessageBox::information(nullptr, QObject::tr("Success"),
+                    QObject::tr("modifié avec success.\n"
+                                "Click Cancel to exit."), QMessageBox::Cancel);
+    }
+    else
+    {
+        QMessageBox::critical(nullptr, QObject::tr("Error"),
+                    QObject::tr("modification echoué !.\n"
+                                "Click Cancel to exit."), QMessageBox::Cancel);
+    }
+}
+
