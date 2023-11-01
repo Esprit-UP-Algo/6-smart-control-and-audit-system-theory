@@ -1,9 +1,13 @@
+
 #ifndef CONNECTION_H
 #define CONNECTION_H
-#include <QSqlDatabase>
-#include <QSqlError>
-#include <QSqlQuery>
 
+
+#include <QtSql/QSqlQuery>
+
+#include <QtSql/QSqlQueryModel>
+#include <QtSql/QSqlDatabase>
+#include <QtSql/QSqlError>
 class Connection
 {
 public:
