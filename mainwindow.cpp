@@ -1,18 +1,15 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "QString"
 #include "contrat.h"
-#include <QMessageBox>
-#include <QDebug>
-#include <QApplication>
-using namespace std;
-#include"connection.h"
-#include <iostream>
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+#include "QMessageBox"
+MainWindow::MainWindow(QWidget *parent) :
+    QMainWindow(parent),
+    ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    ui->tab_contrat->setModel(tempe.Afficher());
+    ui->lineEdit_code->setValidator(new QRegExpValidator(QRegExp("\\d+"),this));
 }
 
 MainWindow::~MainWindow()
@@ -20,23 +17,52 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-
-void MainWindow::on_pushButton_clicked()
+void MainWindow::on_pb_ajouter_clicked()
 {
-    bool test_id,test_price,test_num;
-    int contrat_id=ui->lineEdit_id->text().toInt(&test_id);
-    QString  contrat_name =ui->lineEdit_name->text();
-    QString  contrat_Start =ui->lineEdit_Stime->text();
-    QString  contrat_end =ui->lineEdit_Ftime->text();
-    QString  contrat_field =ui->lineEdit_field->text();
-    double contrat_price =ui->lineEdit_price->text().toDouble(&test_price);
-    int contrat_num= ui->lineEdit_num->text().toInt(&test_num);
-    QString contrat_email=ui->lineEdit_email->text();
-    if(!test_id)
-        QMessageBox::critical(this,"id Problem","make sure that all the id is numbers");
-    Contrat c(contrat_id,contrat_name,contrat_Start,contrat_end,contrat_field,contrat_price,contrat_num,contrat_email);
-    QMessageBox::StandardButton reply=QMessageBox::question(this,"make sure","are you sure you wanna save this file under this id",QMessageBox ::Yes|QMessageBox::No);
+    int id=ui->lineEdit_code->text().toInt();
+    int num=ui->lineEdit_num->text().toInt();
+    int prix=ui->lineEdit_prix->text().toInt();
+    QString td=ui->lineEdit_td->text();
+    QString tf=ui->lineEdit_tf->text();
+    QString d=ui->lineEdit_d->text();
+    QString nom=ui->lineEdit_nom->text();
+    QString loc=ui->lineEdit_loc->text();
+    QString email=ui->lineEdit_email->text();
+    Contrat C(id,num,prix,td,tf,d,nom,loc,email);
+    bool t=C.ajouter();
+    QMessageBox msgBox;
+    if (t){
+          msgBox.setText("Ajout avec succes.");
 
-    if (reply==QMessageBox::Yes){
-        QApplication::quit();}
+      }
+      else
+
+          msgBox.setText("Echec d'ajout");
+          msgBox.exec();
+}
+
+void MainWindow::on_supp_clicked()
+{
+    Contrat c;
+    c.SetcodeC(ui->le_id_sup->text().toInt());
+    bool test=c.supprimer(c.GetcodeC());
+    QMessageBox msgBox;
+
+    if(test)
+        msgBox.setText("supprimer avec succes.");
+
+
+    else
+        msgBox.setText("non supprimer");
+        msgBox.exec();
+}
+
+
+
+void MainWindow::on_MODIFIER_clicked()
+{
+    int id=ui->le_id_sup->text().toInt();
+    int n=ui->LE_NUM->text().toInt();
+    Contrat c;
+    bool test =c.modifier(id,n);
 }
