@@ -28,7 +28,8 @@ public:
     bool ajouter();
     QSqlQueryModel* Afficher();
     bool supprimer(int);
-    bool modifier(int,int);
+    bool modifier(int, int , const QString& );
+
 private:
     int codeC,num;
     int prix;

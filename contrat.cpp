@@ -46,40 +46,80 @@ bool Contrat::ajouter()
     query.bindValue(":email",email);
     return  query.exec();
 }
-
+/*
 QSqlQueryModel* Contrat::Afficher()
 {
     QSqlQueryModel* model=new QSqlQueryModel();
-    model->setQuery("SELECT * FROM CONTRAT");
+    model->setQuery("SELECT * FROM CONTRAT ORDER BY CODEC");
     model->setHeaderData(0,Qt::Horizontal,QObject::tr("CODEC"));
     model->setHeaderData(1,Qt::Horizontal,QObject::tr("NUM"));
     model->setHeaderData(2,Qt::Horizontal,QObject::tr("PRIX"));
 
 
     return model;
+}*/
+QSqlQueryModel* Contrat::Afficher()
+{
+    QSqlQueryModel* model = new QSqlQueryModel();
+    model->setQuery("SELECT * FROM CONTRAT ORDER BY CODEC");
+    model->setHeaderData(0, Qt::Horizontal, QObject::tr("CODEC"));
+    model->setHeaderData(1, Qt::Horizontal, QObject::tr("NUM"));
+    model->setHeaderData(2, Qt::Horizontal, QObject::tr("PRIX"));
+
+    // Loop through the model to format the number without scientific notation
+    for (int row = 0; row < model->rowCount(); ++row)
+    {
+        QModelIndex index = model->index(row, 2); // Assuming the large number is in the third column (index 2)
+        QVariant data = model->data(index);
+        if (data.canConvert<int>())
+        {
+            int number = data.toInt();
+            QString formattedNumber = QString::number(number);
+            model->setData(index, formattedNumber);
+        }
+    }
+
+    return model;
 }
+
 
 bool Contrat::supprimer(int id)
 {
     QSqlQuery query;
+    QString res = QString::number(id);
+    query.prepare("DELETE FROM CONTRAT WHERE CODEC = :id");
+    query.bindValue(":id", id);
+    if (query.exec()) {
+        if (query.numRowsAffected() > 0)
+            return true;
+    }
 
-    query.prepare("DELETE FROM CONTRAT WHERE CODEC= :id");
-    query.bindValue(":codeC",id);
-    return  query.exec();
+    return false;
 }
-bool Contrat::modifier(int id, int n)
+bool Contrat::modifier(int id, int newNum, const QString &newLoc)
 {
     QSqlQuery query;
 
-    query.prepare("UPDATE CONTRAT SET NUM = :n WHERE CODEC = :id");
-    query.bindValue(":n", n);
+    query.prepare("UPDATE CONTRAT "
+                  "SET NUM = :newNum, "
+                  "    LOC = :newLoc "
+                  "WHERE CODEC = :id");
+
+    query.bindValue(":newNum", newNum);
+    query.bindValue(":newLoc", newLoc);
+
     query.bindValue(":id", id);
 
-    return query.exec();
+    if (query.exec()) {
+        if (query.numRowsAffected() > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    } else {
+        return false;
+    }
 }
-
-
-
 
 
 

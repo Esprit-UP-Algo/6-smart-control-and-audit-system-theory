@@ -10,6 +10,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->tab_contrat->setModel(tempe.Afficher());
     ui->lineEdit_code->setValidator(new QRegExpValidator(QRegExp("\\d+"),this));
+    ui->lineEdit_num->setValidator(new QRegExpValidator(QRegExp("\\d{9}"), this));
+    ui->lineEdit_prix->setValidator(new QRegExpValidator(QRegExp("\\d+"),this));
+
+    ui->lineEdit_td->setValidator(new QRegExpValidator(QRegExp("\\d{2}/\\d{2}/\\d{4}"), this));
+    ui->lineEdit_tf->setValidator(new QRegExpValidator(QRegExp("\\d{2}/\\d{2}/\\d{4}"), this));
+    ui->lineEdit_codemod->setValidator(new QRegExpValidator(QRegExp("\\d+"),this));
+    ui->lineEdit_newnum->setValidator(new QRegExpValidator(QRegExp("\\d{9}"),this));
 }
 
 MainWindow::~MainWindow()
@@ -34,6 +41,8 @@ void MainWindow::on_pb_ajouter_clicked()
     if (t){
           msgBox.setText("Ajout avec succes.");
 
+          ui->tab_contrat->setModel(tempe.Afficher());
+
       }
       else
 
@@ -49,20 +58,35 @@ void MainWindow::on_supp_clicked()
     QMessageBox msgBox;
 
     if(test)
-        msgBox.setText("supprimer avec succes.");
+    {   msgBox.setText("supprimer avec succes.");
+         ui->tab_contrat->setModel(tempe.Afficher());
+        }
 
 
     else
         msgBox.setText("non supprimer");
-        msgBox.exec();
+    msgBox.exec();
 }
 
 
 
 void MainWindow::on_MODIFIER_clicked()
 {
-    int id=ui->le_id_sup->text().toInt();
-    int n=ui->LE_NUM->text().toInt();
+    int id=ui->lineEdit_codemod->text().toInt();
+    int num=ui->lineEdit_newnum->text().toInt();
+    QString loc=ui->lineEdit_newloc->text();
     Contrat c;
-    bool test =c.modifier(id,n);
+    QMessageBox msgBox;
+
+    bool test =c.modifier(id,num,loc);
+    if(test)
+    {
+            msgBox.setText("modifier avec succes.");
+            ui->tab_contrat->setModel(tempe.Afficher());
+
+        }
+        else
+
+            msgBox.setText("Echec de modification");
+            msgBox.exec();
 }
