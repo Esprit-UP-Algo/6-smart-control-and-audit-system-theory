@@ -28,8 +28,10 @@ public:
     bool ajouter();
     QSqlQueryModel* Afficher();
     bool supprimer(int);
-    bool modifier(int, int , const QString& );
-
+    bool modifier(int, int , const QString& ,const QString&);
+    bool calculateTotalPrix(const QString &,double &,double &);
+    void exportCodecListToPDF(const QString &);
+    QString formatCodec(const QString &);
 private:
     int codeC,num;
     int prix;

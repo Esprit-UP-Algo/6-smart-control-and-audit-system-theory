@@ -2,6 +2,9 @@
 #include <QSqlQuery>
 #include <QtDebug>
 #include <QObject>
+#include "QMessageBox"
+#include <QPdfWriter>
+#include <QPainter>
 Contrat::Contrat()
 {
     codeC=0;
@@ -46,41 +49,24 @@ bool Contrat::ajouter()
     query.bindValue(":email",email);
     return  query.exec();
 }
-/*
-QSqlQueryModel* Contrat::Afficher()
-{
-    QSqlQueryModel* model=new QSqlQueryModel();
-    model->setQuery("SELECT * FROM CONTRAT ORDER BY CODEC");
-    model->setHeaderData(0,Qt::Horizontal,QObject::tr("CODEC"));
-    model->setHeaderData(1,Qt::Horizontal,QObject::tr("NUM"));
-    model->setHeaderData(2,Qt::Horizontal,QObject::tr("PRIX"));
 
-
-    return model;
-}*/
 QSqlQueryModel* Contrat::Afficher()
 {
     QSqlQueryModel* model = new QSqlQueryModel();
-    model->setQuery("SELECT * FROM CONTRAT ORDER BY CODEC");
+    model->setQuery("SELECT CODEC, NUM, PRIX, TD, TF, DOMAIN, NOMC, LOC, EMAIL FROM CONTRAT ORDER BY CODEC");
     model->setHeaderData(0, Qt::Horizontal, QObject::tr("CODEC"));
     model->setHeaderData(1, Qt::Horizontal, QObject::tr("NUM"));
     model->setHeaderData(2, Qt::Horizontal, QObject::tr("PRIX"));
-
-    // Loop through the model to format the number without scientific notation
-    for (int row = 0; row < model->rowCount(); ++row)
-    {
-        QModelIndex index = model->index(row, 2); // Assuming the large number is in the third column (index 2)
-        QVariant data = model->data(index);
-        if (data.canConvert<int>())
-        {
-            int number = data.toInt();
-            QString formattedNumber = QString::number(number);
-            model->setData(index, formattedNumber);
-        }
-    }
+    model->setHeaderData(3, Qt::Horizontal, QObject::tr("TD"));
+    model->setHeaderData(4, Qt::Horizontal, QObject::tr("TF"));
+    model->setHeaderData(5, Qt::Horizontal, QObject::tr("DOMAIN"));
+    model->setHeaderData(6, Qt::Horizontal, QObject::tr("NOMC"));
+    model->setHeaderData(7, Qt::Horizontal, QObject::tr("LOC"));
+    model->setHeaderData(8, Qt::Horizontal, QObject::tr("EMAIL"));
 
     return model;
 }
+
 
 
 bool Contrat::supprimer(int id)
@@ -96,10 +82,27 @@ bool Contrat::supprimer(int id)
 
     return false;
 }
-bool Contrat::modifier(int id, int newNum, const QString &newLoc)
+bool Contrat::modifier(int id, int newNum, const QString &newLoc, const QString &pass)
 {
     QSqlQuery query;
 
+    query.prepare("SELECT EMAIL FROM CONTRAT WHERE CODEC = :id");
+    query.bindValue(":id", id);
+
+    if (query.exec() && query.next()) {
+        QString dbPassword = query.value("EMAIL").toString();
+
+        if (dbPassword != pass) {
+            // Passwords don't match
+            QMessageBox::warning(this, "Warning", "No data found for the given domain.");
+            return false;
+        }
+    } else {
+        qDebug() << "Error checking password: make sure taht your password is right" ;
+        return false;
+    }
+
+    // Update the other fields if the password check passes
     query.prepare("UPDATE CONTRAT "
                   "SET NUM = :newNum, "
                   "    LOC = :newLoc "
@@ -107,7 +110,6 @@ bool Contrat::modifier(int id, int newNum, const QString &newLoc)
 
     query.bindValue(":newNum", newNum);
     query.bindValue(":newLoc", newLoc);
-
     query.bindValue(":id", id);
 
     if (query.exec()) {
@@ -121,9 +123,61 @@ bool Contrat::modifier(int id, int newNum, const QString &newLoc)
     }
 }
 
+bool Contrat::calculateTotalPrix(const QString &selectedPlace, double &totalPrix, double &pix)
+{
+    totalPrix = 0.0;
+    pix = 0.0;
+
+    QSqlQuery sumQuery;
+    sumQuery.prepare("SELECT PRIX FROM CONTRAT WHERE DOMAIN = :place");
+    sumQuery.bindValue(":place", selectedPlace);
+    bool test = false;
+
+    if (sumQuery.exec()) {
+        if (sumQuery.next()) {
+            test = true;
+            do {
+                double prixValue = sumQuery.value("PRIX").toDouble();
+                totalPrix += prixValue;
+            } while (sumQuery.next());
+        }
+    }
+
+    // Calculate the total sum of prices for all places
+    QSqlQuery totalSumQuery;
+    totalSumQuery.prepare("SELECT PRIX FROM CONTRAT");
+    if (totalSumQuery.exec() ) {
+        if(totalSumQuery.next())
+            do{
+         double prixvalue = totalSumQuery.value("PRIX").toDouble();
+        pix +=prixvalue;
+    }while(totalSumQuery.next());
+}
+    return test;
+}
 
 
 
+void Contrat::exportCodecListToPDF(const QString &filePath)
+{
+    QPdfWriter pdfWriter(filePath);
+    QPainter painter(&pdfWriter);
+
+    painter.setFont(QFont("Arial", 12));
+
+    QSqlQuery query("SELECT CODEC FROM CONTRAT");
+
+    int yOffset = 100;
+
+    while (query.next()) {
+        QString rawCodec = query.value("CODEC").toString();
+
+        painter.drawText(100, yOffset, rawCodec);
+        yOffset += 200;
+    }
+
+    QMessageBox::information(nullptr, "PDF Created", "Codec list exported to PDF successfully.", QMessageBox::Ok);
+}
 
 
 
