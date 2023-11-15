@@ -1,59 +1,37 @@
-#ifndef MISSION_H
-#define MISSION_H
+#ifndef EMPLOYE_H
+#define EMPLOYE_H
 #include <QString>
-#include <QtSql/QSqlQuery>
 #include <QtSql/QSqlQueryModel>
-#include <QString>
-#include <QDate>
-#include <QtSql/QSqlDatabase>
-#include <QtSql/QSqlError>
-
-#include <QVariant>
-
-
-class Mission
+class mission
 {
 public:
+    mission();
+    mission(int,QString,QString);
 
-    Mission();
-    Mission(QString, QString, QString);
+    int GetCode_mission() { return code_mission; }
+    void SetCode_mission(int val) { code_mission = val; }
 
-    void setCode(QString code_mission)
-    {
-        this->code_mission = code_mission;
-    }
-    void setdate(QString date_mission)
-    {
-        this->date_mission = date_mission;
-    }
-    void setTel(QString statut_mission)
-    {
-        this->statut_mission = statut_mission;
-    }
+    QString GetDate_mission() { return date_mission; }
+    void SetDate_mission(QString val) { date_mission = val; }
 
-    QString getCode()
-    {
-        return  this->code_mission;
-    }
-    QString getDate()
-    {
-        return  this->date_mission;
-    }
-    QString getStatut()
-    {
-        return  this->statut_mission;
-    }
+    QString GetStatut_mission() { return statut_mission; }
+    void SetStatut_mission(QString val) { statut_mission = val; }
 
-    bool ajouterMission();
-    bool supprimerMission(int );
-    bool modifierMission();
-    QSqlQueryModel * afficherMission();
-private :
-    QString code_mission ;
-    QString date_mission ;
-    QString statut_mission ;
+    int code_mission;
+    QString date_mission;
+    QString statut_mission;
+
+    //crud
+    bool ajouter();
+    QSqlQueryModel * afficher();
+    bool supprimer(int);
+    bool modifier(int );
+
+ QSqlQueryModel * trier(int test);
+private:
+
+
 };
-
 
 
 #endif // MISSION_H
