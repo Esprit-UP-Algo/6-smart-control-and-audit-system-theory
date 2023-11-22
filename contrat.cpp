@@ -1,3 +1,5 @@
+
+
 #include "contrat.h"
 #include <QSqlQuery>
 #include <QtDebug>
@@ -36,7 +38,7 @@ bool Contrat::ajouter()
     QString num_String =QString::number(num);
     QString prix_String =QString::number(prix);
     QSqlQuery query;
-    query.prepare("INSERT INTO CONTRAT(CODEC,NUM,PRIX,TD,TF,DOMAIN,NOMC,LOC,EMAIL)"
+    query.prepare("INSERT INTO CONTRAT(CODEC,NUM,PRIXC,TD,TF,DOMAIN,NOMC,LOC,EMAIL)"
                   "VALUES (:codeC,:num,:prix,:td,:tf,:d,:nom,:loc,:email)");
     query.bindValue(":codeC",id_String);
     query.bindValue(":num",num_String);
@@ -53,16 +55,16 @@ bool Contrat::ajouter()
 QSqlQueryModel* Contrat::Afficher()
 {
     QSqlQueryModel* model = new QSqlQueryModel();
-    model->setQuery("SELECT CODEC, NUM, PRIX, TD, TF, DOMAIN, NOMC, LOC, EMAIL FROM CONTRAT ORDER BY CODEC");
+    model->setQuery("SELECT CODEC, NUM, PRIXC, TD, TF, DOMAIN, NOMC, LOC, EMAIL FROM CONTRAT ORDER BY CODEC");
     model->setHeaderData(0, Qt::Horizontal, QObject::tr("CODEC"));
     model->setHeaderData(1, Qt::Horizontal, QObject::tr("NUM"));
-    model->setHeaderData(2, Qt::Horizontal, QObject::tr("PRIX"));
+    model->setHeaderData(2, Qt::Horizontal, QObject::tr("PRIXC"));
     model->setHeaderData(3, Qt::Horizontal, QObject::tr("TD"));
     model->setHeaderData(4, Qt::Horizontal, QObject::tr("TF"));
     model->setHeaderData(5, Qt::Horizontal, QObject::tr("DOMAIN"));
     model->setHeaderData(6, Qt::Horizontal, QObject::tr("NOMC"));
     model->setHeaderData(7, Qt::Horizontal, QObject::tr("LOC"));
-    model->setHeaderData(8, Qt::Horizontal, QObject::tr("EMAIL"));
+    model->setHeaderData(8, Qt::Horizontal, QObject::tr("PASSWORD"));
 
     return model;
 }
@@ -93,16 +95,14 @@ bool Contrat::modifier(int id, int newNum, const QString &newLoc, const QString 
         QString dbPassword = query.value("EMAIL").toString();
 
         if (dbPassword != pass) {
-            // Passwords don't match
-            QMessageBox::warning(this, "Warning", "No data found for the given domain.");
+            qDebug() << "Incorrect password.";
             return false;
         }
     } else {
-        qDebug() << "Error checking password: make sure taht your password is right" ;
+        qDebug() << "Error checking password: make sure taht your passwor" ;
         return false;
     }
 
-    // Update the other fields if the password check passes
     query.prepare("UPDATE CONTRAT "
                   "SET NUM = :newNum, "
                   "    LOC = :newLoc "
@@ -122,14 +122,17 @@ bool Contrat::modifier(int id, int newNum, const QString &newLoc, const QString 
         return false;
     }
 }
+bool Contrat ::chercher()
+{
 
+}
 bool Contrat::calculateTotalPrix(const QString &selectedPlace, double &totalPrix, double &pix)
 {
     totalPrix = 0.0;
     pix = 0.0;
 
     QSqlQuery sumQuery;
-    sumQuery.prepare("SELECT PRIX FROM CONTRAT WHERE DOMAIN = :place");
+    sumQuery.prepare("SELECT PRIXC FROM CONTRAT WHERE DOMAIN = :place");
     sumQuery.bindValue(":place", selectedPlace);
     bool test = false;
 
@@ -137,19 +140,18 @@ bool Contrat::calculateTotalPrix(const QString &selectedPlace, double &totalPrix
         if (sumQuery.next()) {
             test = true;
             do {
-                double prixValue = sumQuery.value("PRIX").toDouble();
+                double prixValue = sumQuery.value("PRIXC").toDouble();
                 totalPrix += prixValue;
             } while (sumQuery.next());
         }
     }
 
-    // Calculate the total sum of prices for all places
     QSqlQuery totalSumQuery;
-    totalSumQuery.prepare("SELECT PRIX FROM CONTRAT");
+    totalSumQuery.prepare("SELECT PRIXC FROM CONTRAT");
     if (totalSumQuery.exec() ) {
         if(totalSumQuery.next())
             do{
-         double prixvalue = totalSumQuery.value("PRIX").toDouble();
+         double prixvalue = totalSumQuery.value("PRIXC").toDouble();
         pix +=prixvalue;
     }while(totalSumQuery.next());
 }

@@ -3,6 +3,7 @@
 #include <QString>
 #include <QSqlQueryModel>
 #include <QSqlQueryModel>
+#include "QMessageBox"
 
 class Contrat
 {
@@ -32,6 +33,7 @@ public:
     bool calculateTotalPrix(const QString &,double &,double &);
     void exportCodecListToPDF(const QString &);
     QString formatCodec(const QString &);
+    bool chercher();
 private:
     int codeC,num;
     int prix;

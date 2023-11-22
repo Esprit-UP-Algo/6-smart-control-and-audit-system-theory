@@ -34,6 +34,8 @@ private slots:
 
     void on_exportpng_clicked();
 
+    void on_pushButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     Contrat tempe;

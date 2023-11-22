@@ -14,12 +14,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     ui->tab_contrat->setModel(tempe.Afficher());
-    ui->lineEdit_code->setValidator(new QRegExpValidator(QRegExp("\\d+"),this));
-    ui->lineEdit_num->setValidator(new QRegExpValidator(QRegExp("\\d{9}"), this));
-    ui->lineEdit_prix->setValidator(new QRegExpValidator(QRegExp("\\d+"),this));
+    ui->contrat_lineEdit_code->setValidator(new QRegExpValidator(QRegExp("\\d+"),this));
+    ui->contrat_lineEdit_num->setValidator(new QRegExpValidator(QRegExp("\\d{9}"), this));
+    ui->contrat_lineEdit_prix->setValidator(new QRegExpValidator(QRegExp("\\d+"),this));
 
-    ui->lineEdit_td->setValidator(new QRegExpValidator(QRegExp("\\d{2}/\\d{2}/\\d{4}"), this));
-    ui->lineEdit_tf->setValidator(new QRegExpValidator(QRegExp("\\d{2}/\\d{2}/\\d{4}"), this));
+    ui->contrat_lineEdit_td->setValidator(new QRegExpValidator(QRegExp("\\d{2}/\\d{2}/\\d{4}"), this));
+    ui->contrat_lineEdit_tf->setValidator(new QRegExpValidator(QRegExp("\\d{2}/\\d{2}/\\d{4}"), this));
     ui->lineEdit_codemod->setValidator(new QRegExpValidator(QRegExp("\\d+"),this));
     ui->lineEdit_newnum->setValidator(new QRegExpValidator(QRegExp("\\d{9}"),this));
 
@@ -32,15 +32,15 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pb_ajouter_clicked()
 {
-    int id=ui->lineEdit_code->text().toInt();
-    int num=ui->lineEdit_num->text().toInt();
-    int prix=ui->lineEdit_prix->text().toInt();
-    QString td=ui->lineEdit_td->text();
-    QString tf=ui->lineEdit_tf->text();
-    QString d=ui->lineEdit_d->text();
-    QString nom=ui->lineEdit_nom->text();
-    QString loc=ui->lineEdit_loc->text();
-    QString email=ui->lineEdit_email->text();
+    int id=ui->contrat_lineEdit_code->text().toInt();
+    int num=ui->contrat_lineEdit_num->text().toInt();
+    int prix=ui->contrat_lineEdit_prix->text().toInt();
+    QString td=ui->contrat_lineEdit_td->text();
+    QString tf=ui->contrat_lineEdit_tf->text();
+    QString d=ui->contrat_lineEdit_d->text();
+    QString nom=ui->contrat_lineEdit_nom->text();
+    QString loc=ui->contrat_lineEdit_loc->text();
+    QString email=ui->contrat_lineEdit_email->text();
     Contrat C(id,num,prix,td,tf,d,nom,loc,email);
     bool t=C.ajouter();
     QMessageBox msgBox;
@@ -59,7 +59,7 @@ void MainWindow::on_pb_ajouter_clicked()
 void MainWindow::on_supp_clicked()
 {
     Contrat c;
-    c.SetcodeC(ui->le_id_sup->text().toInt());
+    c.SetcodeC(ui->contrat_le_id_sup->text().toInt());
     bool test=c.supprimer(c.GetcodeC());
     QMessageBox msgBox;
 
@@ -81,13 +81,16 @@ void MainWindow::on_MODIFIER_clicked()
     int id=ui->lineEdit_codemod->text().toInt();
     int num=ui->lineEdit_newnum->text().toInt();
     QString loc=ui->lineEdit_newloc->text();
-    QString pass=ui->pass->text();
+    QString pass=ui->contrat_pass->text();
     Contrat c;
     QMessageBox msgBox;
 
     bool test =c.modifier(id,num,loc,pass);
     if(test)
     {
+
+
+
             msgBox.setText("modifier avec succes.");
             ui->tab_contrat->setModel(tempe.Afficher());
 
@@ -99,40 +102,46 @@ void MainWindow::on_MODIFIER_clicked()
 }
 void MainWindow::on_afficheur_clicked()
 {
-    int afficheur_code = ui->lineEdit_code->text().toInt();
-    QSqlQuery selectQuery;
-    selectQuery.prepare("SELECT * FROM CONTRAT WHERE CODEC = :codeC");
-    selectQuery.bindValue(":codeC", afficheur_code);
-    if (selectQuery.exec() && selectQuery.next() && selectQuery.isValid()) {
-        ui->lineEdit_code->setText(selectQuery.value("CODEC").toString());
-        ui->lineEdit_prix->setText(selectQuery.value("PRIX").toString());
-        ui->lineEdit_num->setText(selectQuery.value("NUM").toString());
-        ui->lineEdit_tf->setText(selectQuery.value("TF").toString());
-        ui->lineEdit_td->setText(selectQuery.value("TD").toString());
-        ui->lineEdit_d->setText(selectQuery.value("DOMAIN").toString());
-    } else {
-        QMessageBox::warning(this, "Warning", "No data found for the given CODEC.");
-        ui->lineEdit_code->clear();
-        ui->lineEdit_prix->clear();
-        ui->lineEdit_num->clear();
-        ui->lineEdit_tf->clear();
-        ui->lineEdit_td->clear();
-        ui->lineEdit_d->clear();
-    }
 
-}
+
+
+    QString emailToSearch = ui->contrat_lineEdit_code->text();
+
+
+        QSqlQuery query;
+        query.prepare("SELECT * FROM CONTRAT WHERE CODEC = :AAA");
+        query.bindValue(":AAA", emailToSearch);
+
+        if (query.exec() && query.next()) {
+
+            QString mail = query.value(1).toString();
+            QString date1erContact = query.value(2).toString();
+            QString adresse = query.value(3).toString();
+
+
+            QSqlQueryModel* model = new QSqlQueryModel();
+            model->setQuery("SELECT * FROM CONTRAT WHERE codeC = '" + emailToSearch + "'");
+            ui->tab_contrat->setModel(model);
+
+            QMessageBox::information(this, "Client trouvé", "Coordonnées du client affichées.");
+        } else {
+
+            QMessageBox::warning(this, "Client non trouvé", "Aucun client trouvé avec cette adresse e-mail.");
+        }
+
+    }
 
 void MainWindow::on_statistics_clicked()
 {
 
     Contrat c;
-    QString d=ui->domdom->text();
+    QString d=ui->contrat_domdom->text();
     double totalPrix;
     double pix;
     bool placeExists = c.calculateTotalPrix(d, totalPrix,pix);
 
     if (placeExists) {
-        ui->values->setText(QString::number(totalPrix));
+        ui->contrat_values->setText(QString::number(totalPrix));
     } else {
         QMessageBox::warning(this, "Warning", "No data found for the given domain.");
     }
@@ -151,6 +160,8 @@ QPieSlice *slice=series->append("your choise",percentage);
     QChartView *chartview =new QChartView(chart);
     chartview->setRenderHint(QPainter::Antialiasing);
     chartview->setParent(ui->horizontalFrame);
+    ui->percent->setText(QString::number(percentage));
+    ui->percent_2->setText(QString::number(100-percentage));
 
 }
 
@@ -189,7 +200,6 @@ void  MainWindow::exportToPDF() {
                cursor.insertBlock();
            }
 
-           // Ouvrez le fichier PDF avec le lecteur PDF par défaut
            doc.setPageSize(QSizeF(pdfWriter.width(), pdfWriter.height()));
            doc.print(&pdfWriter);
 
@@ -209,13 +219,13 @@ void MainWindow::on_exportpdf_clicked()
 
 void MainWindow::on_exportpng_clicked()
 {
-    int afficheur_code = ui->exportid->text().toInt();
+    int afficheur_code = ui->contrat_exportid->text().toInt();
     QSqlQuery selectQuery;
     selectQuery.prepare("SELECT * FROM CONTRAT WHERE CODEC = :codeC");
     selectQuery.bindValue(":codeC", afficheur_code);
     if (selectQuery.exec() && selectQuery.next() && selectQuery.isValid()) {
         QString code=selectQuery.value("CODEC").toString();
-        QString prix=selectQuery.value("PRIX").toString();
+        QString prix=selectQuery.value("PRIXC").toString();
         QString num=selectQuery.value("NUM").toString();
         QString tf=selectQuery.value("TF").toString();
         QString td=selectQuery.value("TD").toString();
@@ -229,24 +239,55 @@ void MainWindow::on_exportpng_clicked()
 
     QWidget myWidget;
 
-       // Set up the widget with its content
        QVBoxLayout* layout = new QVBoxLayout(&myWidget);
 
-       // Create a QLabel and set its text based on the variable's value
-       QLabel* contentLabel = new QLabel("\n\n\n\n\n\n This contrat have the code : " + (code)+"\n\n\n  "
+       QLabel* contentLabel = new QLabel("\n\n\n\n This contrat have the code : " + (code)+"\n\n\n  "
                                         "and the prix :"+(prix)+"\n\n\n"
                                          "and with the number of phone :" +(num)+"\n\n\n"
                                          "with the name :"+(nom)+"\n\n\n"
                                          "specialised in the domain :"+(domain)+"\n\n\n"
                                          "we will start working together from :"+(td)+"\n\n\n"
                                          "and we panned to end the contract in :"+(tf)+"\n"
-                                         "\n\n\n\n\n\n"
+                                         "\n\n\n\n\n"
                                          "notre signature ici                        votre signature ici\n\n\n\n\n\n\n");
 
        layout->addWidget(contentLabel);
 
-       // Take a screenshot of the widget and its contents
        QPixmap screenshot1 = myWidget.grab();
-    screenshot1.save("C:/Users/lenovo/Desktop/c++/zProjet/window_design.png", "PNG");
-
+    screenshot1.save("C:/Users/lenovo/Desktop/c++/zProjet/ProjetCpp/window_design.png", "PNG");
 }}
+
+void MainWindow::on_pushButton_clicked()
+{
+    int id=ui->contrat_id_login->text().toInt();
+    QString pass=ui->contrat_pass_login->text();
+    QSqlQuery query;
+    QLabel* label = ui->contrat_log_in_shield;
+    QLabel* label1 = ui->contrat_log_in_shield_2;
+    query.prepare("SELECT EMAIL FROM CONTRAT WHERE CODEC = :id");
+    query.bindValue(":id", id);
+
+    if (query.exec() && query.next()) {
+        QString dbPassword = query.value("EMAIL").toString();
+
+        if (dbPassword != pass) {
+            qDebug() << "Incorrect password.";
+            label1->setFixedSize(10000,10000);
+            label->setFixedSize(10000, 10000);
+            ui->contrat_pass_login->clear();
+
+        }
+        else
+        {
+
+            label1->setFixedSize(1,1);
+            label->setFixedSize(1, 1);
+        }
+    } else {
+        qDebug() << "Error checking id: make sure taht your id existe" ;
+        label1->setFixedSize(10000,10000);
+        label->setFixedSize(10000, 10000);
+        ui->contrat_id_login->clear();
+    }
+
+}
