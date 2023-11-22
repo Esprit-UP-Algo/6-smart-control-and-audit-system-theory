@@ -10,7 +10,6 @@ public:
 
     int GetCode_mission() { return code_mission; }
     void SetCode_mission(int val) { code_mission = val; }
-
     QString GetDate_mission() { return date_mission; }
     void SetDate_mission(QString val) { date_mission = val; }
 
