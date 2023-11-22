@@ -9,7 +9,6 @@ mission::mission(){
     code_mission=0;
     date_mission=" ";
     statut_mission=" ";
-
 }
 mission::mission(int code_mission,QString date_mission,QString statut_mission){
 
