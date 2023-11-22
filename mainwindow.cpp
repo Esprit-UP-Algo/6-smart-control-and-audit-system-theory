@@ -10,7 +10,6 @@ using namespace std;
 #include <iostream>
 #include <QtCharts/QPieSeries>
 
-
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
