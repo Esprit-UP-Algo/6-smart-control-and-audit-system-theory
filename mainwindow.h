@@ -1,11 +1,20 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
-#include <QMainWindow>
-#include "mission.h"
-QT_BEGIN_NAMESPACE
-namespace Ui {class MainWindow;}
-QT_END_NAMESPACE
 
+#include <QMainWindow>
+#include <QPixmap>
+#include <QFileDialog>
+#include <QPushButton>
+#include <QChartView>
+#include <QPieSeries>
+#include <QChart>
+
+#include <QtCharts/QChartView>
+#include <QtCharts/QPieSeries>
+#include <QtCharts/QChart>
+#include <QMessageBox>
+#include <QSystemTrayIcon>
+#include "certificat.h"
 
 namespace Ui {
 class MainWindow;
@@ -16,30 +25,20 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    mission m;
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-
 private slots:
     void on_pushButton_ajouter_clicked();
-
-    void on_pushButton_supp_clicked();
-
-    void on_affichem_clicked();
-
-    void on_pushButton_modifier_clicked();
-
-    void on_pb_recher_clicked();
-
-    void on_pb_trier_clicked();
-
-    void on_pb_stat_clicked();
-
-    void on_pb_pdf_clicked();
+    void on_pushButton_2_supprimer_clicked();
+    void on_PDF_clicked();
+void on_cherchercertif_2_clicked();
+void on_statistiquesButton_clicked();
+ void on_modifierButton_clicked();
 
 private:
     Ui::MainWindow *ui;
+    Certificat etmp;
+QtCharts::QChartView *chartView;
 };
 
 #endif // MAINWINDOW_H
-

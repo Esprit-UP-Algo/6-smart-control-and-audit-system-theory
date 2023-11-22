@@ -5,7 +5,9 @@
 #-------------------------------------------------
 
 QT       += core gui sql
-
+QT += printsupport
+QT += charts
+QT += core gui charts
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = Atelier_Connexion
@@ -25,11 +27,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+    certificat.cpp \
         main.cpp \
         mainwindow.cpp \
     connection.cpp
 
 HEADERS += \
+    certificat.h \
         mainwindow.h \
     connection.h
 

@@ -1,23 +1,35 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include <QString>
-#include <QApplication>
 #include <QMessageBox>
+#include <QSqlQueryModel>
+#include <QTextDocument>
+#include <QTextStream>
+#include <QComboBox>
+#include <QTabWidget>
+#include"QDate"
 #include <QDebug>
-using namespace std;
-#include"mission.h"
-#include"connection.h"
-#include <iostream>
+#include "certificat.h"
+#include <QPdfWriter>
+#include <list>
+#include <QTableWidget>
+#include <QtWidgets>
+#include <QtCharts>
+#include <QPixmap>
+#include <QFileDialog>
+#include <QtCharts/QChartView>
 #include <QtCharts/QPieSeries>
+#include <QtCharts/QChart>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
-{
-    ui->setupUi(this);
-    ui->tableView->setModel(m.afficher());
-
-    ui->lineEdit_DATE->setValidator(new QRegExpValidator(QRegExp("\\d{2}/\\d{2}/\\d{4}"),this));
+{   ui->setupUi(this);
+    ui->tableView->setModel(etmp.tri());
+    ui->lineEdit_idcertificat->setValidator(new QRegExpValidator(QRegExp("\\d{5}"),this));
+    ui->lineEdit_3->setValidator(new QRegExpValidator(QRegExp("\\d{2}"),this));
+    ui->lineEdit_4->setValidator(new QRegExpValidator(QRegExp("\\d{1}"),this));
+    ui->lineEdit_5->setValidator(new QRegExpValidator(QRegExp("\\d{5}"),this));
+     ui->lineEdit_chercher->setValidator(new QRegExpValidator(QRegExp("\\d{5}"),this));
 
 }
 
@@ -25,195 +37,188 @@ MainWindow::~MainWindow()
 {
     delete ui;
 }
-
 void MainWindow::on_pushButton_ajouter_clicked()
 {
- qDebug();
+    int idcertificat=ui->lineEdit_idcertificat->text().toInt();
+    QString objaudit=ui->lineEdit_2->text();
+    int durecertif=ui->lineEdit_3->text().toInt();
+    int resultau=ui->lineEdit_4->text().toInt();
 
- int code_mission=ui->lineEdit_CODE->text().toInt();
+    Certificat c(idcertificat,resultau,durecertif,objaudit);
+    bool test=c.ajouter();
+    if(test)
+    {
+        QMessageBox::information(nullptr, QObject::tr("ok"),
+      QObject::tr("ajout effectue\n"), QMessageBox::Cancel);
 
-    QString date_mission=ui->lineEdit_DATE->text();
-    QString statut_mission=ui->lineEdit_STATUT->text();
-
-    mission m(code_mission, date_mission,statut_mission);
-
-bool test=m.ajouter();
-if (test){
-    QMessageBox::information(nullptr, QObject::tr("ok"),
-
-                QObject::tr("ajout avec success.\n"
-                            "Click Cancel to exit."), QMessageBox::Cancel);
-
-}
-else
-    QMessageBox::critical(nullptr, QObject::tr("not ok"),
-                QObject::tr(" ajout non effectué.\n"
-                            "Click Cancel to exit."), QMessageBox::Cancel);
-
-}
-
-void MainWindow::on_pushButton_supp_clicked()
-{
-    int code_mission=ui->lineEdit_Supp->text().toInt();
-    bool test=m.supprimer(code_mission);
-if (test)
- {   QMessageBox::information(nullptr, QObject::tr("ok"),
-                QObject::tr("suppression avec success.\n"
-                            "Click Cancel to exit."), QMessageBox::Cancel);
-}
-else
-    QMessageBox::critical(nullptr, QObject::tr("not ok"),
-                QObject::tr(" suppression non effectué.\n"
-                            "Click Cancel to exit."), QMessageBox::Cancel);
-
-}
-
-
-
-void MainWindow::on_affichem_clicked()
-{
-
-    ui->tableView->setModel(m.afficher());
-}
-
-void MainWindow::on_pushButton_modifier_clicked()
-{
-    qDebug();
-    int code_mission=ui->lineEdit_CODE->text().toInt();
-
-       QString date_mission=ui->lineEdit_DATE->text();
-       QString statut_mission=ui->lineEdit_STATUT->text();
-
-       mission m(code_mission, date_mission,statut_mission);
-
-    bool test=m.modifier(code_mission);
-    if (test){ ui->tableView->setModel(m.afficher());
-    QMessageBox::information(nullptr, QObject::tr("ok"), QObject::tr("update avec success.\n" "Click Cancel to exit."), QMessageBox::Cancel);
     }
+    else
+        QMessageBox::critical(nullptr, QObject::tr("not ok"),
+      QObject::tr("ajout non effectue\n"), QMessageBox::Cancel);
+     ui->tableView->setModel(etmp.afficher());
+    ui->tableView_2->setModel(etmp.tri());
+
+
+}
+void MainWindow::on_pushButton_2_supprimer_clicked() {
+    int idcertificateffacer = ui->lineEdit_5->text().toInt();
+
+   bool test=etmp.supprimer(idcertificateffacer);
+   if(test)
+   {
+       QMessageBox::information(nullptr, QObject::tr("ok"),
+     QObject::tr("suppression effectue\n"), QMessageBox::Cancel);
+
+   }
    else
-   QMessageBox::critical(nullptr, QObject::tr("not ok"), QObject::tr(" update non effectué.\n" "Click Cancel to exit."), QMessageBox::Cancel);
+       QMessageBox::critical(nullptr, QObject::tr("not ok"),
+     QObject::tr("suppression non effectue\n"), QMessageBox::Cancel);
+
+   ui->tableView->setModel(etmp.afficher());
+  ui->tableView_2->setModel(etmp.tri());
 
 }
-void MainWindow::on_pb_recher_clicked()
 
+void MainWindow::on_PDF_clicked()
 {
-int code_mission=ui->lineEdit_CODE->text().toInt();
-    // Créez un modèle de requête SQL pour afficher la livraison recherchée.
-    QSqlQueryModel *model = new QSqlQueryModel();
+    QString fileName = "C:/taha/certificat.pdf";
+
+    QPdfWriter pdf(fileName);
+    pdf.setPageSize(QPageSize(QPageSize::A4));
+
+    QPainter painter(&pdf);
+
+
+
+
+    QImage photo("C:/Users/tahal/Downloads/LOGOO.png");
+    painter.drawImage(QRect(0, 0, pdf.width(), pdf.height()), photo);
+  painter.setPen(Qt::darkRed);
+    painter.setFont(QFont("Times New Roman", 30, QFont::Bold));
+    painter.drawText(QRect(0, 50, pdf.width(), 700), Qt::AlignCenter, "Certificat");
+
+
+    painter.setPen(Qt::white);
+    painter.setFont(QFont("Times New Roman", 12, QFont::Bold));
+
+
+    painter.drawText(QRect(100, 1000, 2000, 300), Qt::AlignLeft, "ID Certificat");
+    painter.drawText(QRect(4400, 1000, 2000, 300), Qt::AlignLeft, "Objectif Certificat");
+    painter.drawText(QRect(2200, 1000, 2000, 300), Qt::AlignLeft, "Durée Certificat");
+    painter.drawText(QRect(6600, 1000, 2000, 300), Qt::AlignLeft, "Résultat d'Audit");
+
+
+    painter.setFont(QFont("Times New Roman", 10));
+
     QSqlQuery query;
-    query.prepare("SELECT  * FROM EMPLOYEE WHERE NOM = :NOM");
-    query.bindValue(":CODE_MISSION", code_mission);
+    query.prepare("SELECT * FROM certificat");
+    query.exec();
 
-    if (query.exec()) {
-        model->setQuery(query);
-        ui->tableView->setModel(model);
+    int yPos = 1300;
+    while (query.next())
+    {
+        QString idCertificat = query.value(0).toString();
+        QString objectifCertificat = query.value(1).toString();
+        QString dureeCertificat = query.value(2).toString();
+        QString resultatAudit = query.value(3).toString();
 
-    } else {
-        // Gérez les erreurs de requête SQL si nécessaire.
-        qDebug() << "Erreur de requête SQL : " << query.lastError().text();
+
+        painter.drawText(QRect(100, yPos, 1800, 300), Qt::AlignLeft, idCertificat);
+        painter.drawText(QRect(2200, yPos, 2000, 300), Qt::AlignLeft, objectifCertificat);
+        painter.drawText(QRect(4400, yPos, 2000, 300), Qt::AlignLeft, dureeCertificat);
+        painter.drawText(QRect(6600, yPos, 2000, 300), Qt::AlignLeft, resultatAudit);
+
+        yPos += 300;
     }
 
+    painter.end();
 
+    QMessageBox::information(this, QObject::tr("PDF Enregistré!"),
+        QObject::tr("PDF Enregistré!\n" "Cliquez sur Annuler pour quitter."), QMessageBox::Cancel);
 }
-void MainWindow::on_pb_trier_clicked()
+
+
+
+void MainWindow::on_cherchercertif_2_clicked()
 {
-    QSqlQueryModel *sortedModel = m.trier(2);
-    ui->tableView->setModel(sortedModel);
+    int idchercher = ui->lineEdit_chercher->text().toInt();
+    QSqlQueryModel* model = etmp.recherche(idchercher);
+    ui->tableView_3->setModel(model);
 }
-void MainWindow::on_pb_stat_clicked()
+
+void MainWindow::on_statistiquesButton_clicked()
 {
-    QSqlQuery query;
-    query.prepare("SELECT NOM, ABSENCE(*) FROM EMPLOYEE GROUP BY NOM");
+    Certificat certificat;
+    QStringList statistics = certificat.getObjectifCertificatStatistics();
 
-    if (!query.exec()) {
-        qDebug() << "Erreur lors de l'exécution de la requête.";
-        //db.close();
-        return;
-    }
 
-    // Création de la série de données pour le graphique en secteurs
+    QChartView *chartView = new QChartView(this);
+    QChart *chart = new QChart();
     QPieSeries *series = new QPieSeries();
 
-    while (query.next()) {
-        QString nom= query.value(0).toString();
-        int absence = query.value(1).toInt();
-        series->append(nom, absence);
+
+    int totalOccurrences = 0;
+    for (const QString& objectif : statistics) {
+        int count = certificat.getOccurrences(objectif);
+        totalOccurrences += count;
     }
 
-    foreach(QPieSlice *slice, series->slices()) {
-        QString label = QString("%1 (%2%)")
-            .arg(slice->label())
-            .arg(100 * slice->percentage(), 0, 'f', 1);
-        slice->setLabel(label);
+
+    for (const QString& objectif : statistics) {
+        int count = certificat.getOccurrences(objectif);
+        qreal percentage = (count / static_cast<qreal>(totalOccurrences)) * 100.0;
+        QString label = QString("%1 (%2%)").arg(objectif).arg(percentage, 0, 'f', 2);
+        QPieSlice *slice = series->append(label, count);
+        slice->setLabelVisible();
     }
 
-    // Création du graphique et ajout de la série de données
-    QChart *chart = new QChart();
+
     chart->addSeries(series);
-    chart->setTitle("Statistiques des employes selon l'e statut'absence ");
+    chart->setTitle("Objectif de l'Audit Statistiques");
 
-    // Configuration du graphique
-    chart->legend()->setAlignment(Qt::AlignRight);
-    chart->setAnimationOptions(QChart::AllAnimations);
 
-    // Affichage du graphique
-    QChartView *chartView = new QChartView(chart);
+    chartView->setChart(chart);
     chartView->setRenderHint(QPainter::Antialiasing);
-    chartView->setMinimumSize(640, 480);
-    chartView->show();
-}
-void MainWindow::on_pb_pdf_clicked()
-{  QString fileName = QFileDialog::getSaveFileName(this, "Exporter en PDF", "", "Fichiers PDF (*.pdf)");
-    if (fileName.isEmpty()) {
-        return;  // L'utilisateur a annulé la boîte de dialogue
-    }
 
-    QPrinter printer(QPrinter::HighResolution);
-    printer.setOutputFormat(QPrinter::PdfFormat);
-    printer.setOutputFileName(fileName);
 
-    QTextDocument doc;
-    QTextCursor cursor(&doc);
+    QDialog *dialog = new QDialog(this);
+    QVBoxLayout *layout = new QVBoxLayout(dialog);
+    layout->addWidget(chartView);
+    dialog->setWindowTitle("Statistiques");
+    dialog->setModal(true);
+    dialog->resize(5000, 5000);
+    dialog->exec();
 
-    // En-tête du document
-    QTextCharFormat headerFormat;
-    headerFormat.setFontPointSize(14);
-    headerFormat.setFontWeight(QFont::Bold);
-    cursor.setCharFormat(headerFormat);
-    cursor.insertText("Liste des livraisons\n\n");
 
-    // Crée un tableau avec des colonnes pour chaque champ de la table
-    QTextTableFormat tableFormat;
-    tableFormat.setAlignment(Qt::AlignLeft);
-    QTextTable *table = cursor.insertTable(1, 7, tableFormat);
-    QTextCursor cellCursor;
-
-    // Remplir les en-têtes de colonne
-    cellCursor = table->cellAt(0, 0).firstCursorPosition();
-    cellCursor.insertText("code de mission");
-
-    cellCursor = table->cellAt(0, 1).firstCursorPosition();
-    cellCursor.insertText("date de mission");
-
-    cellCursor = table->cellAt(0, 2).firstCursorPosition();
-    cellCursor.insertText("statut de mission");
-
-    // Obtain the client data from your table model
-    QSqlQueryModel *model = static_cast<QSqlQueryModel*>(ui->tableView->model());
-
-    // Fill the table data
-    for (int row = 0; row < model->rowCount(); ++row) {
-        table->appendRows(1);
-
-        for (int col = 0; col < 7; ++col) {
-            cellCursor = table->cellAt(row + 1, col).firstCursorPosition();
-            cellCursor.insertText(model->data(model->index(row, col)).toString());
+    QPixmap pixmap = chartView->grab();
+    QString filePath = "C:/taha/statistics.png";
+    if (!filePath.isEmpty()) {
+        if (pixmap.save(filePath)) {
+            qDebug() << "Image saved successfully!";
+        } else {
+            qDebug() << "Failed to save the image!";
         }
     }
-
-    doc.print(&printer);
-
-    // Display a success message
-    QMessageBox::information(this, "Succès", "Liste des livraisons exportée sous forme de PDF.");
 }
+void MainWindow::on_modifierButton_clicked()
+{    Certificat certificat;
+    int idCertificat = ui->idCertificatLineEdit->text().toInt();
+
+     QString objectifCertificat = ui->objectifCertificatLineEdit->text();
+     int dureeCertificat = ui->dureeCertificatLineEdit->text().toInt();
+    int resultatAudit = ui->resultatAuditLineEdit->text().toInt();
+     Certificat c(idCertificat,resultatAudit,dureeCertificat,objectifCertificat);
+     bool test=c.modifier();
+
+
+    if (test) {
+        QMessageBox::information(this, "Modification réussie", "Le certificat a été modifié avec succès.");
+    } else {
+        QMessageBox::critical(this, "Erreur de modification", "Une erreur s'est produite lors de la modification du certificat.");
+    }
+}
+
+
+
+
 
