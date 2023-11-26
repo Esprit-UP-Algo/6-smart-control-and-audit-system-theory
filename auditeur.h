@@ -13,11 +13,15 @@ class Auditeur
 public:
     //constructeur
     Auditeur();
-    Auditeur(QString , QString , QDate , QString , QString);
+    Auditeur(QString , QString , QDate , QString , QString,QString);
      // Méthodes pour définir les attributs
     void setCin(QString cin)
     {
         this->cin = cin;
+    }
+    void setSexe (QString sexe)
+    {
+        this->sexe = sexe;
     }
     void setNom(QString nom)
     {
@@ -40,6 +44,10 @@ public:
     {
         return  this->cin;
     }
+    QString getSexe()
+    {
+        return  this->sexe;
+    }
     QString getTel()
     {
         return  this->tel;
@@ -58,17 +66,25 @@ public:
     }
   // Méthodes pour interagir avec la base de données
     bool ajouterAuditeur();
-    bool supprimerAuditeur(int id);
+    bool supprimerAuditeur(QString cin);
     bool modifierAuditeur();
     
     
     QSqlQueryModel * afficherAuditeur();
+    QSqlQueryModel * afficherAuditeurArchives();
+    QSqlQueryModel * Recherche(QString);
+    QSqlQueryModel * TrierAuditeurs(QString , QString);
+    int nombreDeshommes();
+    int nombreDesFemmes();
+    bool archiver();
+    bool desarchiver();
 private :// Attributs pour stocker les informations de l'auditeur
     QString cin ;
     QString nom ;
     QDate date;
     QString tel ;
     QString mail ;
+    QString sexe ;
 };
 
 #endif // AUDITEUR_H

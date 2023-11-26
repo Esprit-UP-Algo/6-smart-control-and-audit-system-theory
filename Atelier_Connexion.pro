@@ -4,8 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui sql
-QT+= sql
+QT       += core gui sql charts network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -26,14 +25,21 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 
+INCLUDEPATH += C:\curl\include
+LIBS += -LC:\curl\lib -lcurl
+
 SOURCES += \
+    auditeur.cpp \
         main.cpp \
         mainwindow.cpp \
-    connection.cpp
+    connection.cpp \
+    sms.cpp
 
 HEADERS += \
+    auditeur.h \
         mainwindow.h \
-    connection.h
+    connection.h \
+    sms.h
 
 FORMS += \
         mainwindow.ui
@@ -42,3 +48,4 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
