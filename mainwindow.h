@@ -6,6 +6,8 @@
 #include<QPieSlice>
 #include <QMainWindow>
 #include "contrat.h"
+#include <QSerialPort>
+#include <QTextEdit>
 namespace Ui {
 class MainWindow;
 }
@@ -22,6 +24,7 @@ private slots:
     void on_pb_ajouter_clicked();
 
     void on_supp_clicked();
+    void readData();
 
 
     void on_MODIFIER_clicked();
@@ -36,9 +39,13 @@ private slots:
 
     void on_pushButton_clicked();
 
+
 private:
     Ui::MainWindow *ui;
     Contrat tempe;
+    QByteArray data;
+    QSerialPort *serial;
+    QTextEdit *textEdit;
 };
 
 #endif // MAINWINDOW_H

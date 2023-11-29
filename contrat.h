@@ -1,6 +1,6 @@
 #ifndef CONTRAT_H
 #define CONTRAT_H
-#include <QString>
+#include <QObject>
 #include <QSqlQueryModel>
 #include <QSqlQueryModel>
 #include "QMessageBox"

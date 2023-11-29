@@ -23,13 +23,31 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->lineEdit_codemod->setValidator(new QRegExpValidator(QRegExp("\\d+"),this));
     ui->lineEdit_newnum->setValidator(new QRegExpValidator(QRegExp("\\d{9}"),this));
 
+    serial = new QSerialPort(this);
+    serial->setPortName("COM4"); // Change to the appropriate port
+    serial->setBaudRate(QSerialPort::Baud9600);
+    if (serial->open(QIODevice::ReadWrite)) {
+        connect(serial, SIGNAL(readyRead()), this, SLOT(readData()));
+    } else {
+        qDebug() << "Error opening serial port:" << serial->errorString();
+    }
+
 }
 
 MainWindow::~MainWindow()
 {
-    delete ui;
+    if (serial->isOpen()) {
+            serial->close();
+        }
+        delete ui;
 }
 
+void MainWindow::readData()
+{
+    QByteArray data = serial->readAll();
+    // Process the data as needed, e.g., display it in the QTextEdit
+    ui->textEdit->append(data);
+}
 void MainWindow::on_pb_ajouter_clicked()
 {
     int id=ui->contrat_lineEdit_code->text().toInt();
