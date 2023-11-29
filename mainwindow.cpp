@@ -17,8 +17,39 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->lineMailAuditeur->setValidator(new QRegExpValidator(QRegExp("[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"), this));
 
    ui->lineTelAuditeur->setValidator(new QRegExpValidator(QRegExp("\\d+"), this));
-}
+   int ret=A.connect_arduino(); // lancer la connexion à arduino
 
+   switch(ret){
+   case(0):qDebug()<< "arduino is available and connected to : "<< A.getarduino_port_name();
+       break;
+   case(1):qDebug() << "arduino is available but not connected to :" <<A.getarduino_port_name();
+      break;
+   case(-1):qDebug() << "arduino is not available";
+   }
+   QObject::connect(A.getserial(),SIGNAL(readyRead()),this,SLOT(update_label())); // permet de lancer
+   //le slot update_label suite à la reception du signal readyRead (reception des données).
+
+}
+void MainWindow::update_label()
+{
+    QByteArray data;
+    data = A.read_from_arduino();
+
+    if (!data.isEmpty()) {
+        QString nom = A.chercher(data);
+        if (!nom.isEmpty()) {
+            QMessageBox::information(this, tr("Welcome"), tr("Bienvenue %1").arg(nom));
+            qDebug() << "valid";
+              A.write_to_arduino("0");
+        }else {
+
+            QMessageBox::information(this, tr("verfication"), tr("code n existe pas"));
+            qDebug() << "invalid";
+        }
+    } else {
+
+    }
+}
 MainWindow::~MainWindow()
 {
     delete ui;
@@ -49,9 +80,9 @@ void MainWindow::on_pushButtonAjoutAuditeur_clicked()
            return;
        }
 
-    if (cin.length() != 8)
+    if (cin.length() != 5)
         {
-            QMessageBox::warning(this, "Erreur", "Le CIN doit être composé de 8 chiffres.");
+            QMessageBox::warning(this, "Erreur", "Le CIN doit être composé de 5 chiffres.");
             return;
         }
 
@@ -322,3 +353,8 @@ void MainWindow::on_pushButtonEnvoyerSms_clicked()
                                    "Click Cancel to exit."), QMessageBox::Cancel);
        }
 }
+
+
+
+
+
